@@ -73,10 +73,13 @@ pub enum ChildIndex {
 
 impl From<DerivationIndex> for ChildIndex {
     fn from(idx: u32) -> Self {
-        if idx >> 31 == 1 {
-            ChildIndex::Hardened { index: U31(idx) }
-        } else {
+        const HIGH_BIT_ONLY: u32 = 1 << 31;
+        if idx & HIGH_BIT_ONLY == 0 {
             ChildIndex::NonHardened { index: U31(idx) }
+        } else {
+            ChildIndex::Hardened {
+                index: U31(idx ^ HIGH_BIT_ONLY),
+            }
         }
     }
 }
